@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-[#fdfcf6] text-zinc-900 antialiased;
+  }
+}
+
+@layer components {
+  .attractive-gradient {
+    background: radial-gradient(circle at 50% 120%, #10b981, transparent);
+  }
+}
