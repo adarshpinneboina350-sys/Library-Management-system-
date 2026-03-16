@@ -4,19 +4,29 @@ import { Mail, Lock, Library, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface LoginProps {
-  onLogin: () => void;
+  onLogin: (role: 'member' | 'admin') => void;
 }
 
 export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState<'member' | 'admin'>('member');
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simple mock login
-    onLogin();
-    navigate('/dashboard');
+    
+    if (role === 'admin') {
+      if (email === 'admin@lumina.com' && password === 'admin123') {
+        onLogin('admin');
+        navigate('/admin');
+      } else {
+        alert('Invalid Admin Credentials.');
+      }
+    } else {
+      onLogin('member');
+      navigate('/dashboard');
+    }
   };
 
   return (
@@ -34,11 +44,30 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             Welcome Back
           </h2>
           <p className="mt-2 text-sm text-zinc-500">
-            Sign in to your Lumina Library account to manage your books
+            Sign in to your Lumina Library account
           </p>
         </div>
 
         <div className="mt-10 rounded-3xl bg-white p-8 shadow-xl shadow-zinc-200/50 ring-1 ring-black/5">
+          <div className="mb-8 flex rounded-xl bg-zinc-100 p-1">
+            <button
+              onClick={() => setRole('member')}
+              className={`flex-1 rounded-lg py-2 text-sm font-bold transition-all ${
+                role === 'member' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'
+              }`}
+            >
+              Member
+            </button>
+            <button
+              onClick={() => setRole('admin')}
+              className={`flex-1 rounded-lg py-2 text-sm font-bold transition-all ${
+                role === 'admin' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'
+              }`}
+            >
+              Admin
+            </button>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-semibold text-zinc-700">

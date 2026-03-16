@@ -6,11 +6,7 @@ import { books } from '../data/books';
 import { BookCard } from '../components/BookCard';
 import { cn } from '../lib/utils';
 
-interface ExploreProps {
-  isLoggedIn: boolean;
-}
-
-export const Explore: React.FC<ExploreProps> = ({ isLoggedIn }) => {
+export const Explore: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('All');
   const navigate = useNavigate();
@@ -45,25 +41,16 @@ export const Explore: React.FC<ExploreProps> = ({ isLoggedIn }) => {
 
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          {isLoggedIn ? (
-            <div className="relative flex-1 max-w-md">
-              <SearchIcon className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-zinc-500" />
-              <input
-                type="text"
-                placeholder="Search by title or author..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-12 w-full rounded-xl bg-white pl-12 pr-4 text-zinc-900 shadow-sm ring-1 ring-black/5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
-          ) : (
-            <div className="flex-1 max-w-md rounded-xl bg-zinc-100 p-3 ring-1 ring-black/5">
-              <p className="text-sm font-medium text-zinc-500 flex items-center gap-2">
-                <SearchIcon className="h-4 w-4" />
-                <span>Search is available for members only. <button onClick={() => navigate('/login')} className="text-emerald-600 font-bold hover:underline">Login</button> to search.</span>
-              </p>
-            </div>
-          )}
+          <div className="relative flex-1 max-w-md">
+            <SearchIcon className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-zinc-500" />
+            <input
+              type="text"
+              placeholder="Search by title or author..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-12 w-full rounded-xl bg-white pl-12 pr-4 text-zinc-900 shadow-sm ring-1 ring-black/5 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
 
           <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0">
             <Filter className="h-5 w-5 flex-shrink-0 text-zinc-400" />

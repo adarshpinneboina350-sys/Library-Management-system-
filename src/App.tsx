@@ -5,36 +5,46 @@ import { PublicHome } from './pages/PublicHome';
 import { Explore } from './pages/Explore';
 import { Login } from './pages/Login';
 import { MemberHome } from './pages/MemberHome';
+import { AdminHome } from './pages/AdminHome';
 import { BookDetails } from './pages/BookDetails';
+import { Profile } from './pages/Profile';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('isLoggedIn') === 'true';
   });
+  const [userRole, setUserRole] = useState<'member' | 'admin' | null>(() => {
+    return localStorage.getItem('userRole') as 'member' | 'admin' | null;
+  });
 
   useEffect(() => {
     localStorage.setItem('isLoggedIn', String(isLoggedIn));
-  }, [isLoggedIn]);
+    if (userRole) {
+      localStorage.setItem('userRole', userRole);
+    } else {
+      localStorage.removeItem('userRole');
+    }
+  }, [isLoggedIn, userRole]);
 
-  const handleLogin = () => setIsLoggedIn(true);
-  const handleLogout = () => setIsLoggedIn(false);
+  const handleLogin = (role: 'member' | 'admin') => {
+    setIsLoggedIn(true);
+    setUserRole(role);
+  };
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserRole(null);
+  };
 
   return (
     <Router>
       <div className="min-h-screen bg-zinc-50 font-sans selection:bg-emerald-100 selection:text-emerald-900">
-        <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+        <Navbar isLoggedIn={isLoggedIn} userRole={userRole} onLogout={handleLogout} />
         
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<PublicHome isLoggedIn={isLoggedIn} />} />
-          <Route 
-            path="/explore" 
-            element={isLoggedIn ? <Explore /> : <Navigate to="/login" />} 
-          />
-          <Route 
-            path="/search" 
-            element={isLoggedIn ? <Explore /> : <Navigate to="/login" />} 
-          />
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/search" element={<Explore />} />
           <Route path="/book/:id" element={<BookDetails />} />
           
           {/* Auth Route */}
@@ -46,7 +56,21 @@ export default function App() {
           {/* Protected Routes */}
           <Route 
             path="/dashboard" 
-            element={isLoggedIn ? <MemberHome /> : <Navigate to="/login" />} 
+            element={
+              isLoggedIn ? (
+                userRole === 'admin' ? <Navigate to="/admin" /> : <MemberHome />
+              ) : (
+                <Navigate to="/login" />
+              )
+            } 
+          />
+          <Route 
+            path="/admin" 
+            element={isLoggedIn && userRole === 'admin' ? <AdminHome /> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/profile" 
+            element={isLoggedIn ? <Profile /> : <Navigate to="/login" />} 
           />
 
           {/* Fallback */}

@@ -1,14 +1,15 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Library, Search, LogIn, LogOut, User } from 'lucide-react';
+import { Library, Search, LogIn, LogOut, User, ShieldCheck } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface NavbarProps {
   isLoggedIn: boolean;
+  userRole: 'member' | 'admin' | null;
   onLogout: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, onLogout }) => {
+export const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, userRole, onLogout }) => {
   const navigate = useNavigate();
 
   return (
@@ -20,24 +21,31 @@ export const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, onLogout }) => {
         </Link>
 
         <div className="flex items-center gap-4">
-          {isLoggedIn && (
-            <Link
-              to="/explore"
-              className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100"
-            >
-              <Search className="h-4 w-4" />
-              <span className="hidden sm:inline">Explore</span>
-            </Link>
-          )}
+          <Link
+            to="/explore"
+            className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100"
+          >
+            <Search className="h-4 w-4" />
+            <span className="hidden sm:inline">Explore</span>
+          </Link>
 
           {isLoggedIn ? (
             <div className="flex items-center gap-2">
+              {userRole === 'member' && (
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100"
+                >
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline">Profile</span>
+                </Link>
+              )}
               <Link
-                to="/dashboard"
+                to={userRole === 'admin' ? "/admin" : "/dashboard"}
                 className="flex items-center gap-2 rounded-full bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-200"
               >
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline">My Account</span>
+                {userRole === 'admin' ? <ShieldCheck className="h-4 w-4" /> : <Library className="h-4 w-4" />}
+                <span className="hidden sm:inline">{userRole === 'admin' ? 'Admin Panel' : 'Dashboard'}</span>
               </Link>
               <button
                 onClick={() => {

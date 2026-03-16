@@ -1,16 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BookOpen, Clock, Star, TrendingUp, Bookmark, ChevronRight, Compass, ShieldCheck } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { books } from '../data/books';
 import { BookCard } from '../components/BookCard';
 import { cn } from '../lib/utils';
 
 export const MemberHome: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'all' | 'borrowed' | 'recommended'>('all');
   const borrowedBooks = books.slice(0, 3);
   // Sort by rating to get "famous" books
   const topFamousBooks = [...books].sort((a, b) => b.rating - a.rating).slice(0, 3);
   const recommendedBooks = books.slice(10, 15);
+
+  const tabs = [
+    { id: 'all', label: 'All Books', icon: Compass },
+    { id: 'borrowed', label: 'My Reads', icon: BookOpen },
+    { id: 'recommended', label: 'For You', icon: TrendingUp },
+  ] as const;
 
   return (
     <div className="min-h-screen bg-[#fdfcf6] pb-24">
@@ -30,14 +37,6 @@ export const MemberHome: React.FC = () => {
             </div>
             
             <div className="flex flex-wrap items-center gap-4">
-              <Link
-                to="/explore"
-                className="flex items-center gap-2 rounded-2xl bg-zinc-900 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-zinc-800 hover:shadow-lg active:scale-95"
-              >
-                <Compass className="h-4 w-4" />
-                Explore All Books
-              </Link>
-              
               <div className="flex items-center gap-2 rounded-2xl bg-zinc-50 px-4 py-2 ring-1 ring-black/5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
                   <Star className="h-4 w-4 fill-emerald-600" />
@@ -49,102 +48,141 @@ export const MemberHome: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Tabs */}
+          <div className="mt-8 flex gap-2 overflow-x-auto pb-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-bold transition-all",
+                  activeTab === tab.id
+                    ? "bg-zinc-900 text-white shadow-lg"
+                    : "bg-white text-zinc-500 hover:bg-zinc-50 ring-1 ring-black/5"
+                )}
+              >
+                <tab.icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
-        {/* Currently Reading */}
-        <section className="mb-16">
-          <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <BookOpen className="h-6 w-6 text-emerald-600" />
-              <h2 className="text-xl font-bold text-zinc-900">Your Current Reads</h2>
-            </div>
-            <button className="flex items-center gap-1 text-sm font-bold text-emerald-600 hover:underline">
-              View History <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {borrowedBooks.map((book, i) => (
-              <motion.div
-                key={book.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="group flex gap-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5 transition-all hover:shadow-md"
-              >
-                <div className="relative h-32 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-zinc-100">
-                  <img 
-                    src={book.coverImage} 
-                    alt={book.title} 
-                    className="h-full w-full object-cover opacity-0 transition-opacity group-hover:opacity-100" 
-                    referrerPolicy="no-referrer" 
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center p-2 text-center group-hover:hidden">
-                    <span className="text-[10px] font-bold leading-tight text-zinc-400">{book.title}</span>
-                  </div>
+        <AnimatePresence mode="wait">
+          {activeTab === 'borrowed' && (
+            <motion.section
+              key="borrowed"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-16"
+            >
+              <div className="mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-6 w-6 text-emerald-600" />
+                  <h2 className="text-xl font-bold text-zinc-900">Your Current Reads</h2>
                 </div>
-                <div className="flex flex-col py-1 flex-1">
-                  <h3 className="font-bold text-zinc-900 line-clamp-1">{book.title}</h3>
-                  <p className="text-xs text-zinc-500">{book.author}</p>
-                  <div className="mt-auto">
-                    <div className="mb-1 flex items-center justify-between text-[10px] font-bold text-zinc-400">
-                      <span>PROGRESS</span>
-                      <span>{65 + i * 10}%</span>
-                    </div>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${65 + i * 10}%` }}
-                        className="h-full bg-emerald-500"
-                      />
-                    </div>
-                    <div className="mt-2 flex items-center gap-1 text-[10px] font-bold text-emerald-600">
-                      <Clock className="h-3 w-3" />
-                      DUE IN {3 + i} DAYS
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* Top 3 Famous Books */}
-        <section className="mb-16">
-          <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Star className="h-6 w-6 text-amber-500 fill-amber-500" />
-              <h2 className="text-xl font-bold text-zinc-900">Top 3 Famous Books</h2>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-            {topFamousBooks.map((book, i) => (
-              <div key={book.id} className="relative">
-                <div className="absolute -top-4 -left-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-amber-500 text-lg font-black text-white shadow-lg">
-                  #{i + 1}
-                </div>
-                <BookCard book={book} />
               </div>
-            ))}
-          </div>
-        </section>
 
-        {/* Recommendations */}
-        <section className="mb-16">
-          <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-6 w-6 text-emerald-600" />
-              <h2 className="text-xl font-bold text-zinc-900">Recommended for You</h2>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
-            {recommendedBooks.map((book) => (
-              <BookCard key={book.id} book={book} />
-            ))}
-          </div>
-        </section>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {borrowedBooks.map((book, i) => (
+                  <motion.div
+                    key={book.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="group flex gap-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5 transition-all hover:shadow-md"
+                  >
+                    <div className="relative h-32 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-zinc-100">
+                      <img 
+                        src={book.coverImage} 
+                        alt={book.title} 
+                        className="h-full w-full object-cover opacity-0 transition-opacity group-hover:opacity-100" 
+                        referrerPolicy="no-referrer" 
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center p-2 text-center group-hover:hidden">
+                        <span className="text-[10px] font-bold leading-tight text-zinc-400">{book.title}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col py-1 flex-1">
+                      <h3 className="font-bold text-zinc-900 line-clamp-1">{book.title}</h3>
+                      <p className="text-xs text-zinc-500">{book.author}</p>
+                      <div className="mt-auto">
+                        <div className="mb-1 flex items-center justify-between text-[10px] font-bold text-zinc-400">
+                          <span>PROGRESS</span>
+                          <span>{65 + i * 10}%</span>
+                        </div>
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${65 + i * 10}%` }}
+                            className="h-full bg-emerald-500"
+                          />
+                        </div>
+                        <div className="mt-2 flex items-center gap-1 text-[10px] font-bold text-emerald-600">
+                          <Clock className="h-3 w-3" />
+                          DUE IN {3 + i} DAYS
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.section>
+          )}
+
+          {activeTab === 'all' && (
+            <motion.section
+              key="all"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-16"
+            >
+              <div className="mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Star className="h-6 w-6 text-amber-500 fill-amber-500" />
+                  <h2 className="text-xl font-bold text-zinc-900">Top 3 Famous Books</h2>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
+                {topFamousBooks.map((book, i) => (
+                  <div key={book.id} className="relative">
+                    <div className="absolute -top-4 -left-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-amber-500 text-lg font-black text-white shadow-lg">
+                      #{i + 1}
+                    </div>
+                    <BookCard book={book} />
+                  </div>
+                ))}
+              </div>
+            </motion.section>
+          )}
+
+          {activeTab === 'recommended' && (
+            <motion.section
+              key="recommended"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-16"
+            >
+              <div className="mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-6 w-6 text-emerald-600" />
+                  <h2 className="text-xl font-bold text-zinc-900">Recommended for You</h2>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
+                {recommendedBooks.map((book) => (
+                  <BookCard key={book.id} book={book} />
+                ))}
+              </div>
+            </motion.section>
+          )}
+        </AnimatePresence>
 
         {/* Quick Stats */}
         <div className="grid gap-6 sm:grid-cols-3">

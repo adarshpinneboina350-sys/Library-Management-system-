@@ -111,14 +111,12 @@ export const PublicHome: React.FC<PublicHomeProps> = ({ isLoggedIn }) => {
               </Link>
             )}
             
-            {isLoggedIn && (
-              <Link
-                to="/explore"
-                className="rounded-2xl bg-white/10 px-8 py-4 text-lg font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 active:scale-95"
-              >
-                Explore Books
-              </Link>
-            )}
+            <Link
+              to="/explore"
+              className="rounded-2xl bg-white/10 px-8 py-4 text-lg font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 active:scale-95"
+            >
+              Explore Books
+            </Link>
           </motion.div>
         </div>
       </section>
